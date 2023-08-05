@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: randomisation
+spec:
+  replicas: 1  # Adjust the number of replicas as per your requirements
+  selector:
+    matchLabels:
+      app: randomisation
+  template:
+    metadata:
+      labels:
+        app: randomisation
+    spec:
+      containers:
+        - name: randomisation
+          image: blackrock30/random-mouse:1.2.2  # Replace with your actual Docker image and tag
+          ports:
+            - containerPort: 8000  # The port your Django app listens on
+          env:
+            - name: DJANGO_SECRET_KEY
+              value: "django-insecure-je9^q@+vzm%x1jofr2z#zt28+63z!mesu+c#99lmx#+p6pdoyh"  # Replace with your Django secret key
+            - name: DJANGO_DEBUG
+              value: "False"  # Set to "True" during development if needed
+            - name: DJANGO_ALLOWED_HOSTS
+              value: "*"  # Replace with the list of allowed hosts in production
+          # Add other environment variables as needed
+
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: randomisation-service
+spec:
+  selector:
+    app: randomisation
+  ports:
+    - protocol: TCP
+      port: 8000  # Expose your Django app on port 80
+      targetPort: 8000  # Forward traffic to container port 8000
+  type: LoadBalancer  # Change to NodePort if LoadBalancer is not available
